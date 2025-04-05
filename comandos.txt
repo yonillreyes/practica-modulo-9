@@ -1,0 +1,425 @@
+.practica1
+ 
+Instalación y Acceso a Webmin en Oracle Linux
+
+Paso 1: Instalar Dependencias
+Antes de instalar Webmin, asegúrate de que tu sistema está actualizado y de que tienes las dependencias necesarias.
+
+
+sudo dnf update -y
+sudo dnf install -y perl perl-Net-SSLeay openssl unzip wget policycoreutils-python-utils
+
+Paso 2: Agregar el Repositorio de Webmin
+Webmin no está disponible en los repositorios oficiales de Oracle Linux, por lo que debemos agregar su repositorio manualmente.
+
+
+sudo tee /etc/yum.repos.d/webmin.repo <<EOF
+[Webmin]
+name=Webmin Repository
+baseurl=http://download.webmin.com/download/yum
+enabled=1
+gpgcheck=1
+gpgkey=http://www.webmin.com/jcameron-key.asc
+EOF
+
+Paso 3 Instalar Webmin
+Ahora, instala Webmin con el siguiente comando:
+
+sudo dnf install -y webmin
+
+Paso 4: Habilitar y Verificar el Servicio
+Habilita Webmin para que inicie automáticamente con el sistema y verifica su estado.
+
+
+sudo systemctl enable --now webmin
+sudo systemctl status webmin
+Si el servicio está en ejecución, deberías ver un mensaje con "active (running)".
+
+Paso 5: Configurar el Firewall
+Webmin usa el puerto 10000 por defecto, por lo que debemos permitir el acceso en el firewall.
+
+sudo firewall-cmd --permanent --add-port=10000/tcp
+sudo firewall-cmd --reload
+
+
+Paso 6: Acceder a Webmin
+Abre un navegador web y accede a Webmin usando la IP de tu servidor o localhost:
+
+
+https://<IP_DEL_SERVIDOR>:10000
+Ejemplo si estás en la misma máquina:
+
+
+https://localhost:10000
+Si el navegador muestra una advertencia de seguridad, acepta el certificado para continuar.
+
+2. Opciones de Administración en Webmin
+Webmin permite realizar múltiples tareas de administración de manera gráfica. Aquí te explico las principales.
+
+2.1. Administración de Usuarios
+Crear un Usuario
+En Webmin, ve a System > Users and Groups.
+
+ clic en Create a new user.
+
+Ingresamos los datos del usuario (nombre, contraseña, grupo, etc.).
+
+Haz clic en Create para finalizar.
+
+Eliminar un Usuario
+Ve a System > Users and Groups.
+
+Selecciona el usuario que deseas eliminar.
+
+Haz clic en Delete selected users y confirma.
+
+2.2. Gestión de Servicios
+Webmin permite administrar servicios del sistema como SSH, Apache, MySQL, etc.
+
+Ve a System > Bootup and Shutdown.
+
+Busca el servicio que deseas administrar (por ejemplo, sshd para SSH).
+
+Puedes hacer clic en:
+
+Start para iniciar el servicio.
+
+Stop para detenerlo.
+
+Restart para reiniciarlo.
+
+También pudemos administrar servicios manualmente desde la terminal:
+
+
+sudo systemctl start sshd
+sudo systemctl stop sshd
+sudo systemctl restart sshd
+
+2.3. Configuración de Red (Asignar IP Estática)
+Para asignar una IP estática desde Webmin:
+
+Ve a Networking > Network Configuration.
+
+Seleccionamos Network Interfaces.
+
+Eligimos la interfaz de red (ejemplo: eth0).
+
+Cambiamos la configuración de DHCP a Static e ingresa la dirección IP, máscara de red y puerta de enlace.
+
+Guardamos los cambios y reinicia la red.
+
+También puedemos hacerlo desde la terminal:
+
+
+sudo nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.1.100/24 ipv4.gateway 192.168.1.1
+sudo nmcli connection up eth0
+
+2.4. Administración de Software
+Puedes instalar, actualizar o eliminar software fácilmente desde Webmin.
+
+Ve a System > Software Packages.
+
+Para instalar un paquete, ingresa su nombre y haz clic en Install Now.
+
+Para actualizar paquetes, ve a System > Software Updates y selecciona Update All.
+
+Para eliminar un paquete, selecciona el paquete en Software Packages y haz clic en Remove.
+
+Desde la terminal:
+
+
+# Instalar
+sudo dnf install -y <nombre_paquete>
+
+# Actualizar todo el sistema
+sudo dnf update -y
+
+# Eliminar un paquete
+sudo dnf remove -y <nombre_paquete>
+
+
+2.5. Gestión de Archivos y Directorios
+Webmin incluye un explorador de archivos gráfico:
+
+Ve a Others > File Manager.
+
+Pudemos navegar entre carpetas, editar archivos, crear o eliminar archivos y directorios.
+
+Para eliminar un archivo, selecciónalo y haz clic en Delete.
+
+Desde la terminal:
+
+
+# Crear un archivo
+touch archivo.txt
+
+# Editar un archivo con nano
+nano archivo.txt
+
+# Eliminar un archivo
+rm archivo.txt
+
+2.6. Monitorización del Sistema
+Webmin permite supervisar el estado del sistema en tiempo real:
+
+Vamos a System > System Information.
+
+Aquí puedemos ver:
+
+Uso de CPU y Memoria.
+
+Espacio en disco disponible.
+
+Carga del sistema.
+
+Desde la terminal, puedes monitorear recursos con:
+
+
+# Ver uso de CPU y RAM
+top
+
+# Ver uso de disco
+df -h
+
+# Ver memoria RAM utilizada
+free -m
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+practica2
+
+instalaciones y dependencias de terraform:
+
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager  --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo dnf install terraform -y
+sudo terraform -v
+
+
+entramos a Digital ocean y sacamos el token y el ssh
+
+token:dop_v1_fa771113167ade779dgdfgdfgdfg3849eaba992f7ccfb41f40c67d3eabeb35a756ab0b7c037
+ssh:ee:21dfdgdfg:7b:45:ee:09:a9:5e:d9:77:49:d7:f6:ce:20:55
+
+una vez optenemos estos creamos un directorio y adentro podemos un archivo y pegamos esto 
+
+                                                               
+terraform {
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
+variable "do_token" {}
+
+provider "digitalocean" {
+  token = var.do_token
+}
+
+resource "digitalocean_droplet" "www-1" {
+  image  = "rockylinux-8-x64"
+  name   = "OS3vm"
+  region = "nyc1"
+  size   = "s-1vcpu-1gb"
+  ssh_keys = [""]
+}
+
+iniciamos terraform con: terraform init
+terraform plan y ponemos el token (aqui podemos ver las configuraciones)
+aplicamos los cambios con terraform apply y escribimos de nuevo el token 
+
+cuando se cree la gota confirmamos 
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+practica 3
+
+.INSTALAR PYTHON Y LAS DEPENDENCIAS DE ANSIBLE
+
+sudo dnf install -y python3.12 python3.12-devel git
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo dnf install epel-release-latest-8.noarch.rpm
+sudo /usr/bin/crb enable 
+sudo dnf install -y python3-libselinux
+pip3 install pywinrm requests-ntlm cryptography
+python3.12 -m ensurepip --upgrade
+python3.12 -m pip install --upgrade pip
+python3.12 -m pip install pywinrm requests-ntlm cryptography
+python3.12 -m pip install pywinrm requests-ntlm cryptography
+python3.12 -m pip install pywinrm requests-ntlm cryptography
+sudo dnf install -y sshpass
+sudo dnf install -y ansible
+
+.ahora configuramos el invertario de ansible con sudo nano
+etc/ansible/hosts (en root)
+nos vamos al fondo y ponemos esto para nuestros clientes, con sus ip:
+
+[win]
+ansible2 ansible_host=192.168.100.53
+
+[win:vars]
+ansible_user=ansible
+ansible_password=ansible
+ansible_port=5985
+ansible_connection=winrm
+ansible_winrm_transport=basic
+ansible_winrm_server_cert_validation=ignore
+ansible_shell_type=powershell
+
+[linux]
+ansible ansible_host=<ip del host> ansible_user=ansible
+
+.ahora nos dirigimos a nuestro cliente de digital ocean:
+ entramos a una cmd y entramso a nuestro cliente:
+
+creamos un usuario: 
+useradd -m ansible
+
+agregamos el usuario a sodoers para que no solicite passwod:
+echo "ansible ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ansible
+
+
+ahora configuramos el ssh para el usuario:
+sudo mkdir -p /home/ansible/.ssh
+sudo chmod 700 /home/ansible/.ssh
+sudo chown ansible:ansible /home/ansible/.ssh
+
+(antes de tirar el ultimo comando necesitamos la llave de la maquina servidor esto lo hacemos en otra terminal con el comando ssh-keygen )
+ vi /home/ansible/.ssh/authorized_keys y ponemos la llave publica del servidor
+
+.despues le damos los permisos al archivo del cliente de linux
+chmod 600 /home/ansible/.ssh/authorized_keys
+chown ansible:ansible /home/ansible/.ssh/authorized_keys
+
+
+.ahora configuramos el cliente windows
+
+lo primero que tenemos que hacer es apagar el firewall para evitar conflicto, tambien volvemos el perfil de red privado
+
+despues ejecutamos una shell como administrador
+
+desactivamos el firewall y volvemos la conection privada por el shell por si acaso:chown ansible:
+
+firewall:
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
+red privada:
+Set-NetConnectionProfile -NetworkCategory Private
+
+para ejecutar script remotos:
+Set-ExecutionPolicy RemoteSigned -Force
+
+habilitar powershell remoting: 
+Enable-PSRemoting -Force
+
+despues ejecutamos: winrm quickconfig
+
+configuramos la autentificacion basica y permitir conexiones:
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value $true
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value $true
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value $true
+reiniciamos el servicio con: Restart-Service WinRM
+
+
+Instalamos el modulo pswindowsupdate: Install-Module -Name PSWindowsUpdate -Force
+
+Habilitamos la regla del firewall para WinRM:New-NetfirewallRule -Name "WinRM HTTP" -Protocol TCP -LocalPort 5985 -Action Allow
+
+nos pedira un nombre le pondre:
+ winrm HTTP
+
+Creamos el usuario ansible:
+New-LocalUser -Name "ansible" -Password (ConvertTo-SecureString "ansible" -AsPlainText -Force) -FullName "Ansible" -Description "Usuario Ansible"
+ 
+ahora lo ponemos en administradores:
+Add-LocalGroupMember -Group "Administrators" -Member "ansible"
+
+crear el listener para winRM:
+winrm create winrm/config/Listener?Address=*+Transport=HTTP
+
+
+verificamos que todo este bien con:
+winrm enumerate winrm/config/listener
+
+
+Volvemos a la maquina principal comprobamos:
+ansible -i /etc/ansible/hosts linux -m ping
+ansible -i /etc/ansible/hosts win -m win_ping
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+practica 4
+clear
+
+entramos en el windows pero desde la cuenta de ansible 
+una vez adentro creamos un texto
+
+desde el controller ejecutamos:
+ansible ansible2 -i /etc/ansible/hosts -m win_copy -a "src=C:/Users/ansible/Desktop/prueba.txt dest=C:/Users/ansible/Documents/prueba.txt remote_src=yes"
+
+y para reiniciar linux ejecutamos:
+ansible ansible -m reboot -b
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Practica 5
+
+instalar notepad++ en widows:
+vamos a crear el playbook para instalar Notepad++ y le vamos a escribir las tareas que debe realizar:
+
+
+vamos al ansible controller y creamos una archivo:
+sudo nando notepad.yml
+
+dentro ponemos esto:
+- name: Descargar e instalar Notepad++ en Windows 10
+  hosts: win
+  tasks:
+    - name: Descargando instalador de Notepad++
+      win_get_url:
+        url: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.5.3/npp.8.5.3.Installer.exe
+        dest: C:\Users\ansible\Downloads\npp_installer.exe
+
+    - name: Ejecutando el instalador de Notepad++
+      win_package:
+        path: C:\Users\ansible\Downloads\npp_installer.exe
+        arguments: /S
+        state: present
+
+guardamos y despues ejecutamos:
+ansible-playbook notepad.yml
+
+
+ahora en para la de digital ocean creamos otro archivo:
+nano reiniciar.yml
+
+adentro pegamos:
+- name: Actualizar los repositorios del sistema
+  hosts: ansible
+  become: yes
+  tasks:
+    - name: Actualizar la caché de paquetes
+      dnf:
+        update_cache: yes
+
+    - name: Actualizar todos los paquetes del sistema
+      dnf:
+        name: "*"
+        state: latest
+
+
+y ejecutamos con:
+ansible-playbook reiniciar.yml
+
+
+
+
+
+
+
+
