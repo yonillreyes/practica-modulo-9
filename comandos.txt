@@ -188,9 +188,9 @@ free -m
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
  
-practica2
+practica2:
 
-instalaciones y dependencias de terraform:
+* instalaciones y dependencias de terraform:
 
 sudo dnf install -y dnf-plugins-core
 sudo dnf config-manager  --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
@@ -198,13 +198,42 @@ sudo dnf install terraform -y
 sudo terraform -v
 
 
-entramos a Digital ocean y sacamos el token y el ssh
+ahora necesitamos entrar a digital ocean para sacar el toquen y la clave ssh esto lo hacemos:
+
+PARA SACAR EL TOKEN:
+
+* Entramos a digital ocean despues en el menu que esta a la izquierda buscamos  donde dice API que esta debajo de AJUSTES.}
+
+ * Una vez le demos a API le vamos ha dar donde dice GENERAR TOKEN y le tenemos que poner un nombre, fecha de caducacion, debajo de estes nos aparecere AMBITOS y le vaos ha dar a acceso completo y listo le damos a generar token y lo copiamos para usarlo mas tarde.
+
+
+PARA GENERAR CLAVES DE SSH:
+
+* Aqui le vamos ha dar en ajustes que se encuentra en el menu de la izquierda.
+
+* Una vez dentro de ajustes le vamos a dar a SEGURIDAD y le daremos donde dice AGREGAR CLAVE SSH una vez aqui adentro nos dara un comando que tenemos que poner en un CMD para que nos de nuestra clave (se nos va a decir donde se deposito dentro del gestor de archivos).
+
+* Una vez tengamos nuestra clave publica lo que vamos hacer es copiarla y pegarla donde dice CLAVE PUBLICA, le ponemos un nombre a la clave y le damos en AGREGAR CLAVE SSH.
+
+* Ya por ultimo copiamos lo que nos de y lo guardamos al lado del TOKEN ya que seran dos parametros que necesitaremos mas tarde.
 
 token:dop_v1_fa771113167ade779dgdfgdfgdfg3849eaba992f7ccfb41f40c67d3eabeb35a756ab0b7c037
 ssh:ee:21dfdgdfg:7b:45:ee:09:a9:5e:d9:77:49:d7:f6:ce:20:55
 
-una vez optenemos estos creamos un directorio y adentro podemos un archivo y pegamos esto 
 
+
+* Ya que tenemos la clave y el token vamos a configurar el terraform para que nos cree la maquina para eso necesitamos:
+
+* crear un directorio:
+mkdir -p terraform
+
+* entramos al directorio:
+cd terraform
+
+* y un archivo donde vamos a pegar la configuracion que esta abajo:
+sudo nano config.tf
+
+* pegamos esto dentro del archivo:
                                                                
 terraform {
   required_providers {
@@ -226,14 +255,31 @@ resource "digitalocean_droplet" "www-1" {
   name   = "OS3vm"
   region = "nyc1"
   size   = "s-1vcpu-1gb"
-  ssh_keys = [""]
+  ssh_keys = ["Aqui va la clave ssh"]
 }
 
-iniciamos terraform con: terraform init
-terraform plan y ponemos el token (aqui podemos ver las configuraciones)
-aplicamos los cambios con terraform apply y escribimos de nuevo el token 
 
-cuando se cree la gota confirmamos 
+
+una vez guardamos el archivo config.tf ahora:
+
+* iniciamos el terraform con: 
+terraform init
+
+* Cuando se complete y nos diga successfully ponemos:
+terraform plan 
+
+* Nos pedira el token que sacamos previamente y lo ponemos
+
+* Se nos dara un resumen de la maquina que estamos por crear, confirmamos con:
+terraform apply
+
+* Nos volvera a pedir el TOKEN  y lo ponmos de nuevo
+
+* Despues nos hara una pregunta y ponemos yes
+
+* Esperamos a que se termine de crear y confirmamos entrando a digital ocean y refrescamos la pagina y nos tiene que aparecer la VM creada.
+
+cuando se cree la gota confirmamos entrando por SSH.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
