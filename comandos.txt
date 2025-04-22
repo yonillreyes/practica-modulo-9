@@ -287,19 +287,25 @@ practica 3
 
 .INSTALAR PYTHON Y LAS DEPENDENCIAS DE ANSIBLE
 
-sudo dnf install -y python3.12 python3.12-devel git
-wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-sudo dnf install epel-release-latest-8.noarch.rpm
-sudo /usr/bin/crb enable 
-sudo dnf install -y python3-libselinux
-pip3 install pywinrm requests-ntlm cryptography
-python3.12 -m ensurepip --upgrade
-python3.12 -m pip install --upgrade pip
-python3.12 -m pip install pywinrm requests-ntlm cryptography
-python3.12 -m pip install pywinrm requests-ntlm cryptography
-python3.12 -m pip install pywinrm requests-ntlm cryptography
-sudo dnf install -y sshpass
-sudo dnf install -y ansible
+.sudo dnf install -y python3.12 python3.12-devel git
+
+.wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+
+.sudo dnf install epel-release-latest-9.noarch.rpm -y
+
+.sudo /usr/bin/crb enable 
+
+.sudo dnf install -y python3-libselinux
+
+.python3.12 -m ensurepip --upgrade
+
+.python3.12 -m pip install --upgrade pip
+
+.python3.12 -m pip install pywinrm requests-ntlm cryptography
+
+.sudo dnf install -y sshpass
+
+.sudo dnf install -y ansible
 
 .ahora configuramos el invertario de ansible con sudo nano
 etc/ansible/hosts (en root)
@@ -320,14 +326,14 @@ ansible_shell_type=powershell
 [linux]
 ansible ansible_host=<ip del host> ansible_user=ansible
 
-.ahora nos dirigimos a nuestro cliente de digital ocean:
- entramos a una cmd y entramso a nuestro cliente:
+.ahora nos dirigimos a nuestro cliente de digital ocean para esto copiamos la ip de digital ocean del servidor entramos a una cmd y entramos por ssh usando la ip, adentro tenemos que crear el usuario cliente:
 
 creamos un usuario: 
 useradd -m ansible
 
 agregamos el usuario a sodoers para que no solicite passwod:
 echo "ansible ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ansible
+(si queremos hacer esto con otro usuario simplemente cambiamso los nombres)
 
 
 ahora configuramos el ssh para el usuario:
@@ -397,11 +403,24 @@ Volvemos a la maquina principal comprobamos:
 ansible -i /etc/ansible/hosts linux -m ping
 ansible -i /etc/ansible/hosts win -m win_ping
 
+si el de windows no funciona prueba poner estos comandos:
+
+source /ruta/a/tu/venv/bin/activate
+pip install pywinrm requests-ntlm cryptography
+interpreter_python = /usr/bin/python3.12
+python3.12 -m pip install pywinrm requests-ntlm cryptography
+ansible -m setup localhost | grep ansible_python_interpreter
+python3.12 -m pip install pywinrm
+ python3.12 -m pip install --upgrade pip
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 practica 4
 clear
 
-entramos en el windows pero desde la cuenta de ansible 
+entramos en el windows pero desde la cuenta de ansible (que se tiene que haber creado )
 una vez adentro creamos un texto
 
 desde el controller ejecutamos:
